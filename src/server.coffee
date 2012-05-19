@@ -13,10 +13,10 @@ server = null
 # starts the server
 #
 # route: function that returns a request handler based on the request url
-exports.start = (route, port) ->
+exports.start = (respond, port) ->
 	server = https.createServer options, (req, res) ->
 			console.log "#{if req.client.authorized then "⌂" else "·"} #{req.method} #{req.url}"
-			route req, res
+			respond req, res
 			console.log "  → #{res.statusCode}"
 		.listen port
 
