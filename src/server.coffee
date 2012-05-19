@@ -1,3 +1,8 @@
+# Provides the server, which handles SSL and some request logging
+
+# TODO proper logging (to file/using memcached; async -> req & res must be
+# together)
+
 https = require 'https'
 fs	  = require 'fs'
 
@@ -12,7 +17,7 @@ server = null
 
 # starts the server
 #
-# route: function that returns a request handler based on the request url
+# respond: the request handler (will receive request & response objects)
 exports.start = (respond, port) ->
 	server = https.createServer options, (req, res) ->
 			console.log "#{if req.client.authorized then "⌂" else "·"} #{req.method} #{req.url}"
@@ -26,5 +31,3 @@ exports.start = (respond, port) ->
 exports.stop = ->
 	server.close()
 	console.log '** server stopped **'
-
-# TODO use a dedicated logger instead of console.log

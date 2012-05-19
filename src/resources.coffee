@@ -1,13 +1,17 @@
 # Collects info about all existing resources.
-# 
+#
 # Exports the `respond` function that takes the request and response as
 # parameters. The server uses it to handle all incoming requests, and this
 # function hands control to the appropriate controller based on the url templates
 # defined here.
 
+# TODO once the URL templates exist, document them somewhere (for instance here)
+
 render  = (require './render').render
-helpers = require './routing_helpers'
+helpers = require './routingHelpers'
 [ resource, resSet, exports.respond ] = [ helpers.resource, helpers.resourceSet, helpers.respond ]
+
+# The following resources are placeholders for testing.
 
 resource '/',
     GET:    (req, res) ->
@@ -32,7 +36,8 @@ resource '/hello/{name}',
                     render req, res, 401, 'Content-Type': 'text/plain',
                            'Unauthorized! Boo!'
 
+resource '/hello', resSet['/hello/{name}']
 
-resource '/assets/{path}', (req, res, p) -> helpers.static 'assets/' + p.path
+resource '/assets/{path...}', (req, res, p) -> helpers.static 'assets/' + p.path
 
 resource '*', {} # for OPTIONS (may be used as a no-op according to RFC1626 :D)
