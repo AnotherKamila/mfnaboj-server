@@ -11,3 +11,6 @@ exports.render = (req, res, status, headers, body) ->
 	res.writeHead status, headers
 	res.write body + '\n' if body and not req.isHEAD # TODO read the TODO on lines 4 and 5
 	res.end()
+
+# for now; later this should include some awesome logging
+exports.err = exports.render

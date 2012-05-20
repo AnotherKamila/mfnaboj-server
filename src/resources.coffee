@@ -1,17 +1,26 @@
 # Collects info about all existing resources.
 #
+# This is the "what" of the service: defines what it can do
+#
 # Exports the `respond` function that takes the request and response as
 # parameters. The server uses it to handle all incoming requests, and this
-# function hands control to the appropriate controller based on the url templates
-# defined here.
+# function hands control to the appropriate controller based on the url
+# templates defined here.
+#
+# URL templates
+# -------------
+#
+# The URLs defined here can be either literal or templated with `{param-name}`
+# as path components. The last template parameter can be of the form
+# `{parameter...}`, in which case it will consume the whole rest of the path
+# including other components. The template parameters will be passed to the
+# handler in an object as the 3rd parameter along with `req` and `res`.
+# Literal URLs have precedence over templated ones. If more rules of the same
+# precedence match, which one is called is undefined.
 
-# TODO once the URL templates exist, document them somewhere (for instance here)
-
-render  = (require './render').render
-helpers = require './routingHelpers'
-[ resource, exports.respond ] = [ helpers.resource, helpers.respond ]
-
-# The following resources are placeholders for testing.
+{ render, err }       = require './fw/render'
+{ resource, respond } = require './fw/routing'
+exports.respond = respond
 
 resource '/',
     GET:    (req, res) ->
@@ -23,21 +32,8 @@ resource '/',
 
                 render req, res, 200, 'Content-Type': 'text/plain', body
 
-resource '/hello /hello/{name}',
-    GET:    (req, res, params) ->
-                render req, res, 200, 'Content-Type': 'text/plain',
-                       "Hello #{if params.name? then params.name else 'World'}\n"
-
-    PUT:    (req, res) ->
-                if req.client.authorized
-                    render req, res, 501, 'Content-Type': 'text/plain',
-                           "I Would PUT if I could, but I can't, so I shan't.\n"
-                else
-                    render req, res, 401, 'Content-Type': 'text/plain',
-                           'Unauthorized! Boo!'
-
-
-resource '/{something}/here/{sooooawesome...}',
-    GET: (req, res, p) -> render req, res, 200, "#{p.something} here #{p.sooooawesome}"
 
 resource '*', {} # for OPTIONS (may be used as a no-op according to RFC1626 :D)
+    # TODO maybe should be implemented as a special case? (e.g. to make it
+    # faster, and also keep it in the framework to avoid forgetting to put it
+    # here)

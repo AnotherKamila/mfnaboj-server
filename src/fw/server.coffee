@@ -13,13 +13,11 @@ options =
 	requestCert: 		true
 	rejectUnauthorized: false
 
-server = null
-
 # starts the server
 #
 # respond: the request handler (will receive request & response objects)
 exports.start = (respond, port) ->
-	server = https.createServer options, (req, res) ->
+	https.createServer options, (req, res) ->
 			console.log "#{if req.client.authorized then "⌂" else "·"} #{req.method} #{req.url}"
 			respond req, res
 			console.log "  → #{res.statusCode}"
@@ -27,7 +25,3 @@ exports.start = (respond, port) ->
 
 	console.log "** https server started on port #{port} **"
 	console.log ''
-
-exports.stop = ->
-	server.close()
-	console.log '** server stopped **'
