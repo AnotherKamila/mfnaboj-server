@@ -1,14 +1,6 @@
-What Data It Provides
-=====================
+Where to Find API Docs
+======================
 
-- teams
-- problems
-- results
-- info (time of contest etc.)
+In the code!
 
-for each contest, scoped by state, city, possibly filtered by other things
-
-Resources
-=========
-
-TODO
+I have designed the framework so that the file `resources.coffee` contains a readable list of all application resources (in order to avoid duplication --> outdated stuff here). Go read `resources.coffee`!

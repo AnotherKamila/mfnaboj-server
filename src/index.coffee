@@ -3,7 +3,7 @@
 # Puts the "what" to life: Launches the server with the appropriate `respond`
 # function.
 
-# TODO add try/catch everywhere
+# TODO add try/catch --> 500 everywhere once we have proper logging
 
 resources = require './resources'
 server    = require './fw/server'

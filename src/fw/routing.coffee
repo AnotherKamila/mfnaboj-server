@@ -13,13 +13,17 @@
 # passed to the handler inside an object with `req` and `res`. Literal URLs have precedence over
 # templated ones. If more rules of the same precedence match, which one is called is undefined.
 
-url     = require 'url'
-{ render, err }  = require './render'
+# TODO it would probably be a good idea to say "things that come first go first" or something
+# TODO this actually is a good idea, do it tomorrow (or eventually)
+
+url             = require 'url'
+{ render, err } = require './render'
 
 literal = {}; tokenized = {}
 exports.resource = (urls, docstring, responds) ->
     responds._description = docstring
     for path in urls.split ' '
+        path = sanitizedUrl path # OK to call here, just touches slashes
         if (path.indexOf '{') == -1
             literal[path] = [ responds, {} ]
         else
@@ -28,15 +32,16 @@ exports.resource = (urls, docstring, responds) ->
 
 # the actual routing function
 exports.respond = (req, res) ->
-    path      = url.parse(req.url).pathname
+    path      = url.parse(req.url).pathname; path = sanitizedUrl path
     respondTo = req.method; if respondTo == 'HEAD' then respondTo = 'GET'
     [ matching, params ] = literal[path] or findTokenized path
     if not matching?
         err req, res, 404; return
     if not matching[respondTo]?
-        render req, res, (if respondTo == 'OPTIONS' then 200 else 405), 'Allow': allowedMethods(matching); return # TODO do we mind that this is not considered an error? Do I really need to separate out? :-(
+        render req, res, (if respondTo == 'OPTIONS' then 200 else 405), null, 'Allow': allowedMethods(matching); return # TODO do we mind that this is not considered an error? Do I really need to separate out? :-(
 
     matching[respondTo] req, res, params
+
 
 TokensRegex = /\{([^\/\.]+)(\.\.\.)?\}/g
 parseTokenized = (path) ->
@@ -66,3 +71,7 @@ allowedMethods = (responds) ->
     if responds.GET? then allow.push 'HEAD' # implicitly defined by GET
     allow.push m for m of responds
     allow
+
+sanitizedUrl = (path) ->
+    path += '/' unless path[path.length-1] == '/'
+    path.replace /\/+/g, '/'
