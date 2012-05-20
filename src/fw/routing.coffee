@@ -1,10 +1,24 @@
-# Provides helper functions for routing & responding to requests
+# Provides functions for defining a resource; handles routing & responding to requests
+#
+# Exports the `respond` function (bubbles up through export in resources) that takes the request and
+# response as parameters. The server uses it to handle all incoming requests, and this function
+# hands control to the appropriate controller based on the url templates defined here.
+#
+# URL templates
+# -------------
+#
+# The URLs passed to `resource` can be either literal or templated with `{param-name}` as path
+# components. The last template parameter can be of the form `{parameter...}`, in which case it will
+# consume the whole rest of the path including other components. The template parameters will be
+# passed to the handler inside an object with `req` and `res`. Literal URLs have precedence over
+# templated ones. If more rules of the same precedence match, which one is called is undefined.
 
 url     = require 'url'
-render  = (require './render').render
+{ render, err }  = require './render'
 
 literal = {}; tokenized = {}
 exports.resource = (urls, docstring, responds) ->
+    responds._description = docstring
     for path in urls.split ' '
         if (path.indexOf '{') == -1
             literal[path] = [ responds, {} ]
@@ -14,16 +28,15 @@ exports.resource = (urls, docstring, responds) ->
 
 # the actual routing function
 exports.respond = (req, res) ->
-    path   = url.parse(req.url).pathname
-    if path == '*' then render req, res, 200, 'Allow': 'OPTIONS'; return # TODO cleanup
-    method = req.method; if method == 'HEAD' then method = 'GET'
+    path      = url.parse(req.url).pathname
+    respondTo = req.method; if respondTo == 'HEAD' then respondTo = 'GET'
     [ matching, params ] = literal[path] or findTokenized path
     if not matching?
-        render req, res, 404; return
-    if not matching[method]?
-        render req, res, (if method == 'OPTIONS' then 200 else 405), 'Allow': allowedMethods(matching); return
+        err req, res, 404; return
+    if not matching[respondTo]?
+        render req, res, (if respondTo == 'OPTIONS' then 200 else 405), 'Allow': allowedMethods(matching); return # TODO do we mind that this is not considered an error? Do I really need to separate out? :-(
 
-    matching[method] req, res, params
+    matching[respondTo] req, res, params
 
 TokensRegex = /\{([^\/\.]+)(\.\.\.)?\}/g
 parseTokenized = (path) ->
@@ -37,8 +50,7 @@ parseTokenized = (path) ->
     paramsExtractor = (path) ->
         values = (path.match regex).slice 1
         params = {}; i = 0; while i < tokens.length
-            params[tokens[i]] = values[i]
-            i++ # oops :D
+            params[tokens[i]] = values[i++]
         params
 
     [ regex, paramsExtractor ]
