@@ -3,6 +3,8 @@
 # Puts the "what" to life: Launches the server with the appropriate `respond`
 # function.
 
+# TODO add try/catch everywhere
+
 resources = require './resources'
 server    = require './server'
 

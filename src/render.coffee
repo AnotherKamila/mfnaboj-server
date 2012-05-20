@@ -6,6 +6,7 @@
 #	one day
 exports.render = (req, res, status, headers, body) ->
 	status  ?= 200
+	if typeof headers == 'string' then [body, headers] = [headers, null] # someone left out headers probably
 	headers ?= {}
 	res.writeHead status, headers
 	res.write body + '\n' if body and not req.isHEAD # TODO read the TODO on lines 4 and 5

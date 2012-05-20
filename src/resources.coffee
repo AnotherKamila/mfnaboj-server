@@ -9,7 +9,7 @@
 
 render  = (require './render').render
 helpers = require './routingHelpers'
-[ resource, resSet, exports.respond ] = [ helpers.resource, helpers.resourceSet, helpers.respond ]
+[ resource, exports.respond ] = [ helpers.resource, helpers.respond ]
 
 # The following resources are placeholders for testing.
 
@@ -23,7 +23,7 @@ resource '/',
 
                 render req, res, 200, 'Content-Type': 'text/plain', body
 
-resource '/hello/{name}',
+resource '/hello /hello/{name}',
     GET:    (req, res, params) ->
                 render req, res, 200, 'Content-Type': 'text/plain',
                        "Hello #{if params.name? then params.name else 'World'}\n"
@@ -36,8 +36,8 @@ resource '/hello/{name}',
                     render req, res, 401, 'Content-Type': 'text/plain',
                            'Unauthorized! Boo!'
 
-resource '/hello', resSet['/hello/{name}']
 
-resource '/assets/{path...}', (req, res, p) -> helpers.static 'assets/' + p.path
+resource '/{something}/here/{sooooawesome...}',
+    GET: (req, res, p) -> render req, res, 200, "#{p.something} here #{p.sooooawesome}"
 
 resource '*', {} # for OPTIONS (may be used as a no-op according to RFC1626 :D)
