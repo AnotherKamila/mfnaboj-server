@@ -23,17 +23,12 @@
 exports.respond = respond
 
 resource '/',
-    GET:    (req, res) ->
-                if req.client.authorized
-                    crtdata = req.client.encrypted.getPeerCertificate().subject
-                    body = "authorized for scope: #{crtdata.ST}/#{crtdata.L}\n"
-                else
-                    body = 'unauthorized user\n'
+         'Tests authorization (for now)',
+         GET:   (req, res) ->
+                    if req.client.authorized
+                        crtdata = req.client.encrypted.getPeerCertificate().subject
+                        body = "authorized for scope: #{crtdata.ST}/#{crtdata.L}\n"
+                    else
+                        body = 'unauthorized user\n'
 
-                render req, res, 200, 'Content-Type': 'text/plain', body
-
-
-resource '*', {} # for OPTIONS (may be used as a no-op according to RFC1626 :D)
-    # TODO maybe should be implemented as a special case? (e.g. to make it
-    # faster, and also keep it in the framework to avoid forgetting to put it
-    # here)
+                    render req, res, 200, 'Content-Type': 'text/plain', body

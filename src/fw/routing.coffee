@@ -4,7 +4,7 @@ url     = require 'url'
 render  = (require './render').render
 
 literal = {}; tokenized = {}
-exports.resource = (urls, responds) ->
+exports.resource = (urls, docstring, responds) ->
     for path in urls.split ' '
         if (path.indexOf '{') == -1
             literal[path] = [ responds, {} ]
@@ -15,6 +15,7 @@ exports.resource = (urls, responds) ->
 # the actual routing function
 exports.respond = (req, res) ->
     path   = url.parse(req.url).pathname
+    if path == '*' then render req, res, 200, 'Allow': 'OPTIONS'; return # TODO cleanup
     method = req.method; if method == 'HEAD' then method = 'GET'
     [ matching, params ] = literal[path] or findTokenized path
     if not matching?
