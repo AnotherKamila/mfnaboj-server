@@ -13,15 +13,12 @@
 # passed to the handler inside an object with `req` and `res`. Literal URLs have precedence over
 # templated ones. If more rules of the same precedence match, which one is called is undefined.
 
-# TODO it would probably be a good idea to say "things that come first go first" or something
-# TODO this actually is a good idea, do it tomorrow (or eventually)
-
 url             = require 'url'
 { render, err } = require './render'
 
 literal = {}; tokenized = {}
 exports.resource = (urls, docstring, responds) ->
-    responds._description = docstring
+    # responds._description = docstring
     for path in urls.split ' '
         path = sanitizedUrl path # OK to call here, just touches slashes
         if (path.indexOf '{') == -1
@@ -38,7 +35,8 @@ exports.respond = (req, res) ->
     if not matching?
         err req, res, 404; return
     if not matching[respondTo]?
-        render req, res, (if respondTo == 'OPTIONS' then 200 else 405), null, 'Allow': allowedMethods(matching); return # TODO do we mind that this is not considered an error? Do I really need to separate out? :-(
+        [ s, f ] = if respondTo == 'OPTIONS' then [ 200, render ] else [ 405, err ]
+        f req, res, s, null, 'Allow': allowedMethods(matching).join ', '; return
 
     matching[respondTo] req, res, params
 

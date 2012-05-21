@@ -5,7 +5,7 @@ loglevels =
     error: 1
     warn:  2
     info:  3
-myloglevel = 3 # TODO read from config once we have config
+mylevel = (require '../conf').loglevel; if typeof mylevel == 'string' then mylevel = loglevels[mylevel]
 ansicolors =
     0:  '\033[41m\033[1;37m\033[1m'
     1:  '\033[31m\033[1m'
@@ -22,7 +22,7 @@ exports.createLogger = (filename) ->
     logger = {}
     logger.log = (level, message, context) ->
         if typeof level == 'string' then level = loglevels[level]
-        return if level > myloglevel
+        return if level > mylevel
         e = level: level, timestamp: timestamp().toTimestamp(), message: message, context: context
         logfile.write (JSON.stringify e) + '\n'
         console.log "#{ansicolors[level]}[#{e.timestamp}] #{e.message}#{ansicolors.off}"

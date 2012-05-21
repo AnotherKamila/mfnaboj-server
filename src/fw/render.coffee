@@ -8,6 +8,7 @@ exports.render = (req, res, status = 200, body, headers = {}) ->
     headers['Content-Type'] = 'application/json'
     res.writeHead status, headers
     res.write JSON.stringify body if body and req.method != 'HEAD'
+    res.end()
 
 # for now; later this should include some awesome logging
 exports.err = (req, res, status = 500, body, headers = {}) ->
