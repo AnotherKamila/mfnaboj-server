@@ -2,8 +2,9 @@
 
 # TODO proper logging (detailed for errors; to file; async -> req & res must be together)
 
-https = require 'https'
-fs    = require 'fs'
+https  = require 'https'
+fs     = require 'fs'
+logger = (require './logger').createLogger '/tmp/mfnaboj-server.access.log'
 
 options =
     key:    fs.readFileSync '../certs/server.key'
@@ -18,8 +19,7 @@ options =
 exports.start = (respond, port) ->
     https.createServer options, (req, res) ->
             respond req, res
-            console.log "#{if req.client.authorized then "⌂" else "·"} #{req.method} #{req.url} → #{res.statusCode}"
+            logger.info "#{if req.client.authorized then "⌂" else "·"} #{req.method} #{req.url} → #{res.statusCode}"
         .listen port
 
-    console.log "** https server started on port #{port} **"
-    console.log ''
+    logger.console "** https server started on port #{port} **\n"
